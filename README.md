@@ -7,8 +7,7 @@
 
 `Создан свой шаблон, в котором будут элементы данных, мониторящие загрузку CPU и RAM хоста.`
 
-
-1. ![Скриншот-1](https://github.com/Neoju5t/zabbix2/blob/836040c454619aaa3132bb68063ee8af4422f180/img/1zadanie.jpg)
+![Скриншот-1](https://github.com/Neoju5t/zabbix2/blob/836040c454619aaa3132bb68063ee8af4422f180/img/1zadanie.jpg)
 
 
 ---
@@ -17,10 +16,25 @@
 
 `Установка Zabbix Agent на два хоста`
 
+---
 
-![Скриншот-3](https://github.com/Neoju5t/zabbix_1/blob/be9541c6e9d17e73429d895e4f29171053b623be/img/Test2.JPG)
-![Скриншот-4](https://github.com/Neoju5t/zabbix_1/blob/be9541c6e9d17e73429d895e4f29171053b623be/img/log.JPG)
-![Скриншот-5](https://github.com/Neoju5t/zabbix_1/blob/be9541c6e9d17e73429d895e4f29171053b623be/img/connect%20server.JPG)
+### Задание 3
+
+`Привязанный созданный шаблон к двум хостам. Также привяжите к обоим хостам шаблон Linux by Zabbix Agent.`
+
+
+![Скриншот-3](https://github.com/Neoju5t/zabbix2/blob/5e7b4563553f9dae20e22e735e2a71672539b19d/img/2zadanie(1).jpg)
+![Скриншот-4](https://github.com/Neoju5t/zabbix2/blob/5e7b4563553f9dae20e22e735e2a71672539b19d/img/2zadanie(2).jpg)
+
+
+---
+
+### Задание 3
+
+`Создан свой кастомный дашборд.`
+
+
+![Скриншот-5](https://github.com/Neoju5t/zabbix2/blob/5e7b4563553f9dae20e22e735e2a71672539b19d/img/4zadanie.jpg)
 
 
 ---
