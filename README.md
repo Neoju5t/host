@@ -1,29 +1,17 @@
-# Домашнее задание к занятию "`Система мониторинга Zabbix`" - `Динейко Алексей`
+# Домашнее задание к занятию "`Система мониторинга Zabbix. Часть 2`" - `Динейко Алексей`
 
 
 ---
 
 ### Задание 1
 
-`Установка Zabbix Server с веб-интерфейсом`
+`Создан свой шаблон, в котором будут элементы данных, мониторящие загрузку CPU и RAM хоста.`
 
 
 ```
-sudo -s
-apt install postgresql
-sudo systemctl start postgresql
-sudo systemctl enable postgresql
-wget https://repo.zabbix.com/zabbix/6.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest+ubuntu22.04_all.deb
-dpkg -i zabbix-release_latest+ubuntu22.04_all.deb
-apt update
-apt install zabbix-server-pgsql zabbix-frontend-php php8.1-pgsql zabbix-apache-conf zabbix-sql-scripts zabbix-agent
-sudo -u postgres createuser --pwprompt zabbix
-
-```
 
 
-1. ![Скриншот-1](https://github.com/Neoju5t/zabbix_1/blob/be9541c6e9d17e73429d895e4f29171053b623be/img/LOGIN%20ZABBIX.JPG)
-2. ![Скриншот-2](https://github.com/Neoju5t/zabbix_1/blob/be9541c6e9d17e73429d895e4f29171053b623be/img/ZABBIX.JPG)
+1. ![Скриншот-1](https://github.com/Neoju5t/zabbix2/blob/836040c454619aaa3132bb68063ee8af4422f180/img/1zadanie.jpg)
 
 
 ---
