@@ -15,6 +15,10 @@
 
 ### Задание 2
 
-`Установка Zabbix Agent на два хоста`
+`Скриншот где видно перенаправление запросов на разные серверы при обращении к HAProxy c использованием домена example.local`
+
+![Скриншот-1](https://github.com/Neoju5t/klaster_and_balans/blob/dbd3c0a6ab76bf5422820a131c73259c6b8d55b2/img/%D0%A1%D0%BD%D0%B8%D0%BC%D0%BE%D0%BA%20%D1%8D%D0%BA%D1%80%D0%B0%D0%BD%D0%B0%202024-12-17%20%D0%B2%2000.36.30.png)
+
+[Обновленный файл конфигурации](https://github.com/Neoju5t/klaster_and_balans/blob/dbd3c0a6ab76bf5422820a131c73259c6b8d55b2/img/haproxy2.0.cfg)
 
 ---
