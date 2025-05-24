@@ -1,68 +1,111 @@
-# Домашнее задание к занятию "«SQL. Часть 2»" - `Динейко Алексей`
+# Домашнее задание к занятию "«Индексы»" - `Динейко Алексей`
 
 ---
 
 ### Задание 1
 
-`Запрос для получения информации о магазине с более чем 300 покупателями`
+`Запрос для получения процентного отношения размера индексов к общему размеру таблиц`
 
+```
 SELECT 
-    s.last_name AS "Surname",
-    s.first_name AS "Name",
-    city.city AS "Store sity",
-    COUNT(c.customer_id) AS "Number of buyers"
+    ROUND(
+        (SUM(INDEX_LENGTH) / (SUM(DATA_LENGTH) + SUM(INDEX_LENGTH))) * 100, 
+        2
+    ) AS index_ratio_percent
 FROM 
-    store st
-INNER JOIN 
-    staff s ON st.store_id = s.store_id
-INNER JOIN 
-    address a ON st.address_id = a.address_id
-INNER JOIN 
-    city ON a.city_id = city.city_id
-INNER JOIN 
-    customer c ON st.store_id = c.store_id
-GROUP BY 
-    st.store_id, s.staff_id, city.city
-HAVING 
-    COUNT(c.customer_id) > 300;
+    information_schema.TABLES 
+WHERE 
+    TABLE_SCHEMA = 'sakila';
+```
 
-![Скриншот-1](https://github.com/Neoju5t/SQL-vol.2/blob/0433500c76e82ee736b56325ec9a6e3179559826/img/%D0%A1%D0%BD%D0%B8%D0%BC%D0%BE%D0%BA%20%D1%8D%D0%BA%D1%80%D0%B0%D0%BD%D0%B0%202025-05-24%20%D0%B2%2014.40.38.png)
+`Скриншот запроса и результат процентного отношения размера индексов к общему размеру таблиц:`
+![Скриншот-1](https://github.com/Neoju5t/Index/blob/8f587b7e62134bcffdf97ebe3ce55d32fc53b632/img/%D0%A1%D0%BD%D0%B8%D0%BC%D0%BE%D0%BA%20%D1%8D%D0%BA%D1%80%D0%B0%D0%BD%D0%B0%202025-05-24%20%D0%B2%2015.16.35.png)
 
 ---
 
 ### Задание 2
 
-`Запрос для получения количества фильмов с продолжительностью больше средней`
+`Анализ и оптимизация запроса`
 
-SELECT 
-    COUNT(*) AS "Number of films"
+Исходный запрос:
+
+```
+EXPLAIN ANALYZE
+SELECT DISTINCT 
+    CONCAT(c.last_name, ' ', c.first_name), 
+    SUM(p.amount) OVER (PARTITION BY c.customer_id, f.title)
 FROM 
-    film
+    payment p, 
+    rental r, 
+    customer c, 
+    inventory i, 
+    film f
 WHERE 
-    length > (SELECT AVG(length) FROM film);
+    DATE(p.payment_date) = '2005-07-30' 
+    AND p.payment_date = r.rental_date 
+    AND r.customer_id = c.customer_id 
+    AND i.inventory_id = r.inventory_id;
+ ```
+   
+Узкие места:
+- 1. Неявные JOIN (перечисление таблиц через запятую) — может привести к декартову произведению.
 
-![Скриншот-2](https://github.com/Neoju5t/SQL-vol.2/blob/0433500c76e82ee736b56325ec9a6e3179559826/img/%D0%A1%D0%BD%D0%B8%D0%BC%D0%BE%D0%BA%20%D1%8D%D0%BA%D1%80%D0%B0%D0%BD%D0%B0%202025-05-24%20%D0%B2%2014.42.23.png)
+- 2. Использование DATE(p.payment_date) — блокирует использование индекса по payment_date.
 
----
+- 3. Оконная функция с PARTITION BY c.customer_id, f.title — избыточная нагрузка из-за дублирования данных.
 
-### Задание 3
+- 4. DISTINCT — попытка убрать дубликаты, созданные оконной функцией.
 
-`Запрос для получения месяца с наибольшей суммой платежей и количества аренд`
+- 5. Отсутствие индексов на ключевых полях (payment_date, rental_id).
 
+Оптимизированный запрос:
+
+```
+-- Добавление индексов (если их нет)
+CREATE INDEX idx_payment_date ON payment(payment_date);
+CREATE INDEX idx_rental_id ON rental(rental_id);
+
+-- Оптимизированный запрос
+EXPLAIN ANALYZE
 SELECT 
-    DATE_FORMAT(p.payment_date, '%Y-%m') AS "Month",
-    SUM(p.amount) AS "sum of payment",
-    COUNT(r.rental_id) AS "Number of rents"
+    CONCAT(c.last_name, ' ', c.first_name) AS customer_name,
+    SUM(p.amount) AS total_amount
 FROM 
     payment p
-INNER JOIN 
-    rental r ON p.rental_id = r.rental_id
+JOIN rental r ON p.rental_id = r.rental_id
+JOIN customer c ON r.customer_id = c.customer_id
+JOIN inventory i ON r.inventory_id = i.inventory_id
+JOIN film f ON i.film_id = f.film_id
+WHERE 
+    p.payment_date >= '2005-07-30' 
+    AND p.payment_date < '2005-07-31'
 GROUP BY 
-    DATE_FORMAT(p.payment_date, '%Y-%m')
-ORDER BY 
-    SUM(p.amount) DESC
-LIMIT 1;
+    c.customer_id, f.film_id;
+```
 
-![Скриншот-3](https://github.com/Neoju5t/SQL-vol.2/blob/0433500c76e82ee736b56325ec9a6e3179559826/img/%D0%A1%D0%BD%D0%B8%D0%BC%D0%BE%D0%BA%20%D1%8D%D0%BA%D1%80%D0%B0%D0%BD%D0%B0%202025-05-24%20%D0%B2%2014.45.22.png)
+Изменения:
+
+- Явные JOIN с указанием условий.
+
+- Убрана оконная функция — используется GROUP BY.
+
+- Условие по дате через диапазон для использования индекса.
+
+- Убран DISTINCT — группировка устраняет дубликаты.
+
+Результаты оптимизации:
+
+- Сокращение времени выполнения за счет исключения оконной функции и DISTINCT.
+
+- Использование индексов для фильтрации по дате.
+
+- Улучшение читаемости запроса.
+
+
+`Скриншот исходного запроса и время выполнения:`
+![Скриншот-2](https://github.com/Neoju5t/Index/blob/8f587b7e62134bcffdf97ebe3ce55d32fc53b632/img/%D0%A1%D0%BD%D0%B8%D0%BC%D0%BE%D0%BA%20%D1%8D%D0%BA%D1%80%D0%B0%D0%BD%D0%B0%202025-05-24%20%D0%B2%2015.59.29.png)
+
+`Скриншот оптимизированного запроса и время выполнения:`
+![Скриншот-3](https://github.com/Neoju5t/Index/blob/8f587b7e62134bcffdf97ebe3ce55d32fc53b632/img/%D0%A1%D0%BD%D0%B8%D0%BC%D0%BE%D0%BA%20%D1%8D%D0%BA%D1%80%D0%B0%D0%BD%D0%B0%202025-05-24%20%D0%B2%2015.58.46.png)
 
 ---
